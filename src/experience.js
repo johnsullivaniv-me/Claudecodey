@@ -32,7 +32,7 @@ let audio    = null;
 let rafId    = null;
 let tStart   = null;
 let running  = false;
-let skipPhase = false;   // set true to jump to next phase
+let skipLine = false;   // set true to advance the current line only
 let escaped   = false;   // set true to exit to end card
 
 // Clock tick state for the live-clock line
@@ -104,13 +104,12 @@ muteBtn.addEventListener('click', () => {
 });
 
 skipBtn.addEventListener('click', () => {
-  skipPhase = true;
+  skipLine = true;
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && running) {
     escaped = true;
-    skipPhase = true;
   }
 });
 
@@ -173,7 +172,7 @@ function formatClock(d) {
 
 /**
  * Display a single line, hold it, then fade out.
- * Returns a promise that resolves when done (or skipPhase flips).
+ * Returns a promise that resolves when done (or skipLine flips).
  */
 async function showLine(line) {
   stopClock();
@@ -212,12 +211,13 @@ async function showLine(line) {
   const holdStart = performance.now();
   await new Promise(resolve => {
     function checkSkip() {
-      if (skipPhase) { resolve(); return; }
+      if (skipLine || escaped) { resolve(); return; }
       if (performance.now() - holdStart >= holdMs) { resolve(); return; }
       requestAnimationFrame(checkSkip);
     }
     checkSkip();
   });
+  skipLine = false; // consume: skip advances only this segment, not the next ones
 
   // Fade out (and let the central visuals brighten back up)
   if (renderer) renderer.setDim(0);
@@ -231,8 +231,6 @@ async function showLine(line) {
 
 // ── Phase runner ──────────────────────────────────────────────
 async function runPhase(phase) {
-  skipPhase = false;
-
   // Set scene
   renderer.setScene(phase.scene, phase.sceneOpts || {});
   audio.setIntensity(phase.audioIntensity);
@@ -248,12 +246,8 @@ async function runPhase(phase) {
     await showLine(line);
     if (escaped) break;
     // Brief pause between lines
-    if (!skipPhase && !escaped) {
-      await wait(prefersReducedMotion() ? 100 : 500);
-    }
+    await wait(prefersReducedMotion() ? 100 : 500);
   }
-
-  skipPhase = false;
 }
 
 // ── Exit to end card ─────────────────────────────────────────
@@ -289,8 +283,8 @@ async function showTitleReturn() {
 
 // ── Main experience ───────────────────────────────────────────
 async function runExperience() {
-  escaped   = false;
-  skipPhase = false;
+  escaped  = false;
+  skipLine = false;
   const script = buildScript(new Date());
 
   showControls();
