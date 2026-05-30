@@ -87,6 +87,8 @@ export function buildScript(now = new Date()) {
       lines: [
         { text: 'You\'re standing on a rock that\'s spinning a thousand miles an hour…', hold: 5000 },
         { text: '…racing around a star at sixty-seven thousand miles an hour…', hold: 5000 },
+        { text: '…and that whole star, with you on it, is sweeping through the galaxy at nearly half a million miles an hour…', hold: 5500 },
+        { text: '…on an orbit so vast it takes two hundred million years just to come back around once.', hold: 5500 },
         { text: '…in a galaxy of a hundred billion stars, one of two trillion galaxies.', hold: 5500 },
         { text: 'From far enough away, you can\'t be seen at all.', hold: 4500 },
         {

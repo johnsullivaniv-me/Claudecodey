@@ -17,6 +17,27 @@ export function createRenderer(canvas) {
   // Shared particle pools / state per scene (re-init on setScene)
   let state = {};
 
+  // Text-readability dimming (eased toward target each frame).
+  // The director raises this while a line is on screen so bright
+  // central elements recede behind the text.
+  let _dim = 0, _dimTarget = 0;
+  let _lastT = 0;
+
+  // Directed breathing: when the "In…/…and out." lines are showing,
+  // the director drives the circle so inhale = expand, exhale = contract.
+  let _breathDirected = false;
+  let _breathFrom = 0, _breathTo = 0, _breathStart = 0, _breathDur = 4, _breathT = 0;
+
+  function setDim(v) { _dimTarget = clamp(v, 0, 1); }
+
+  function setBreath(dir, durSec) {
+    _breathDirected = true;
+    _breathFrom = _breathT;
+    _breathTo = dir === 'in' ? 1 : 0;
+    _breathStart = _lastT;
+    _breathDur = durSec || 4;
+  }
+
   function resize() {
     dpr = window.devicePixelRatio || 1;
     W = canvas.clientWidth;
@@ -31,6 +52,11 @@ export function createRenderer(canvas) {
     _scene = name;
     _opts = opts || {};
     _reduced = prefersReducedMotion();
+    if (name === 'breath') {
+      // Start autonomous; the director takes over on the In/out lines.
+      _breathDirected = false;
+      _breathT = 0;
+    }
     _initScene(name, _opts);
   }
 
@@ -84,18 +110,27 @@ export function createRenderer(canvas) {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, W, H);
     const cx = W / 2, cy = H / 2;
-    // 8-second breath cycle: 4s in, 4s out
-    const cycle = (t % 8) / 8;
     let breathT;
     if (_reduced) {
       breathT = 0.55; // static mid-breath
+    } else if (_breathDirected) {
+      // Driven by the In/out lines: inhale expands, exhale contracts.
+      const p = clamp((t - _breathStart) / _breathDur, 0, 1);
+      breathT = lerp(_breathFrom, _breathTo, easeInOut(p));
     } else {
+      // Autonomous 8s cycle (4s in, 4s out) until the director takes over.
+      const cycle = (t % 8) / 8;
       breathT = cycle < 0.5 ? easeInOut(cycle * 2) : easeInOut(1 - (cycle - 0.5) * 2);
     }
+    _breathT = breathT;
+
+    // Dim bright central elements while a line is on screen (readability).
+    const dimK = 1 - _dim * 0.82;
+
     const baseR = Math.min(W, H) * 0.06;
     const maxR = Math.min(W, H) * 0.18;
     const r = baseR + (maxR - baseR) * breathT;
-    const alpha = 0.15 + breathT * 0.2;
+    const alpha = (0.15 + breathT * 0.2) * dimK;
 
     // Outer glow
     const grd = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 3.5);
@@ -109,7 +144,7 @@ export function createRenderer(canvas) {
     // Circle rim
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(200,215,220,${0.35 + breathT * 0.35})`;
+    ctx.strokeStyle = `rgba(200,215,220,${(0.35 + breathT * 0.35) * dimK})`;
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
@@ -162,10 +197,11 @@ export function createRenderer(canvas) {
       ctx.fillStyle = `rgba(200,200,190,${p.alpha})`;
       ctx.fill();
     }
-    // Bright center point = now
+    // Bright center point = now (dimmed while text is on screen)
+    const dimK = 1 - _dim * 0.82;
     const pg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 22);
-    pg.addColorStop(0, 'rgba(240,235,220,0.9)');
-    pg.addColorStop(0.3, 'rgba(220,215,200,0.35)');
+    pg.addColorStop(0, `rgba(240,235,220,${0.9 * dimK})`);
+    pg.addColorStop(0.3, `rgba(220,215,200,${0.35 * dimK})`);
     pg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(cx, cy, 22, 0, Math.PI * 2);
@@ -173,7 +209,7 @@ export function createRenderer(canvas) {
     ctx.fill();
     ctx.beginPath();
     ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,250,235,0.95)';
+    ctx.fillStyle = `rgba(255,250,235,${0.95 * dimK})`;
     ctx.fill();
   }
 
@@ -286,9 +322,10 @@ export function createRenderer(canvas) {
       }
     }
 
-    // Center glow = here
+    // Center glow = here (dimmed while text is on screen)
+    const dimK = 1 - _dim * 0.82;
     const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 18);
-    cg.addColorStop(0, 'rgba(240,238,225,0.7)');
+    cg.addColorStop(0, `rgba(240,238,225,${0.7 * dimK})`);
     cg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(cx, cy, 18, 0, Math.PI * 2);
@@ -296,7 +333,7 @@ export function createRenderer(canvas) {
     ctx.fill();
     ctx.beginPath();
     ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,252,235,0.92)';
+    ctx.fillStyle = `rgba(255,252,235,${0.92 * dimK})`;
     ctx.fill();
   }
 
@@ -400,9 +437,10 @@ export function createRenderer(canvas) {
     ctx.fillStyle = grd;
     ctx.fill();
 
-    // Dot glow
+    // Dot glow (dimmed while text is on screen)
+    const dimK = 1 - _dim * 0.82;
     const dg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 7);
-    dg.addColorStop(0, `rgba(220,205,170,${alpha * 0.55})`);
+    dg.addColorStop(0, `rgba(220,205,170,${alpha * 0.55 * dimK})`);
     dg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(cx, cy, r * 7, 0, Math.PI * 2);
@@ -411,13 +449,17 @@ export function createRenderer(canvas) {
 
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(235,220,185,${alpha})`;
+    ctx.fillStyle = `rgba(235,220,185,${alpha * dimK})`;
     ctx.fill();
   }
 
   // ── Dispatch render ───────────────────────────────────────
   function render(tSec, dtSec) {
     if (W === 0 || H === 0) return;
+    _lastT = tSec;
+    // Ease the dim toward its target (frame-rate independent).
+    const k = dtSec > 0 ? Math.min(1, dtSec * 3.5) : 1;
+    _dim += (_dimTarget - _dim) * k;
     switch (_scene) {
       case 'title':         _renderTitle(tSec); break;
       case 'breath':        _renderBreath(tSec); break;
@@ -430,5 +472,5 @@ export function createRenderer(canvas) {
     }
   }
 
-  return { setScene, render, resize };
+  return { setScene, render, resize, setDim, setBreath };
 }

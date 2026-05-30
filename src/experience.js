@@ -196,6 +196,14 @@ async function showLine(line) {
   lineDisplay.style.visibility = 'visible';
   lineDisplay.classList.remove('fade-hidden');
   await new Promise(r => setTimeout(r, 20)); // small tick for reflow
+  // Dim bright central visuals behind the text, and — on the breath
+  // lines — drive the circle so inhale expands and exhale contracts.
+  if (renderer) {
+    renderer.setDim(1);
+    const breathDur = (FADE_MS + (line.hold || 4000)) / 1000;
+    if (line.breathIn)  renderer.setBreath('in', breathDur);
+    if (line.breathOut) renderer.setBreath('out', breathDur);
+  }
   lineDisplay.style.opacity = '1';
   await wait(FADE_MS);
 
@@ -211,7 +219,8 @@ async function showLine(line) {
     checkSkip();
   });
 
-  // Fade out
+  // Fade out (and let the central visuals brighten back up)
+  if (renderer) renderer.setDim(0);
   lineDisplay.style.transition = `opacity ${FADE_MS}ms ease`;
   lineDisplay.style.opacity    = '0';
   await wait(FADE_MS);
