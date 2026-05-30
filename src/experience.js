@@ -66,6 +66,12 @@ function onResize() {
   if (renderer) renderer.resize();
 }
 window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
+// iOS Safari resizes the visible area (URL bar show/hide) without always
+// firing a window resize — track the visual viewport so the canvas stays centered.
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', onResize);
+}
 
 // ── Controls setup ───────────────────────────────────────────
 function showControls() {
