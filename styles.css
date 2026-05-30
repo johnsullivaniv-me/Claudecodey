@@ -1,0 +1,293 @@
+/* styles.css — Still Here: full-bleed, distraction-free, typographic pacing */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #e8e8e0;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Root app container */
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Canvas: full-bleed behind everything */
+#bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Overlay: text layer on top of canvas */
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Start Screen ─────────────────────────────────────────── */
+#start-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  z-index: 20;
+  pointer-events: all;
+}
+
+#start-screen .app-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #e8e8e0;
+  margin-bottom: 1.6rem;
+  opacity: 0.92;
+}
+
+#start-screen .subtitle {
+  font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+  letter-spacing: 0.18em;
+  color: #888;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 3.5rem;
+}
+
+#start-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(232, 232, 224, 0.35);
+  color: #e8e8e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 0.85em 2.4em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.4s ease, color 0.4s ease, background 0.4s ease;
+  pointer-events: all;
+}
+
+#start-btn:hover,
+#start-btn:focus-visible {
+  border-color: rgba(232, 232, 224, 0.75);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  outline: none;
+}
+
+#start-screen .footer-micro {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  text-transform: lowercase;
+}
+
+/* ── Main text line (one at a time) ──────────────────────── */
+#line-display {
+  max-width: min(680px, 86vw);
+  text-align: center;
+  line-height: 1.72;
+  padding: 1rem 2rem;
+  pointer-events: none;
+}
+
+#line-text {
+  display: block;
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  font-weight: 400;
+  color: #e0e0d8;
+  letter-spacing: 0.01em;
+  line-height: 1.75;
+}
+
+/* Live clock special styling */
+#line-text.is-clock {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.06em;
+  color: #c8c8c0;
+}
+
+/* ── Controls ─────────────────────────────────────────────── */
+#controls {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.8rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  z-index: 30;
+  pointer-events: all;
+}
+
+.ctrl-btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: rgba(200, 200, 192, 0.38);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.3em 0.5em;
+  transition: color 0.3s ease;
+  pointer-events: all;
+}
+
+.ctrl-btn:hover,
+.ctrl-btn:focus-visible {
+  color: rgba(200, 200, 192, 0.85);
+  outline: none;
+}
+
+/* ESC hint */
+#esc-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.8rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  color: rgba(200, 200, 192, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 30;
+}
+
+/* ── End card ─────────────────────────────────────────────── */
+#end-card {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  z-index: 40;
+  pointer-events: all;
+}
+
+#end-card.visible {
+  display: flex;
+}
+
+#end-card .end-message {
+  font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+  font-weight: 400;
+  color: #e8e8e0;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+#end-card .end-footer {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: #555;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  text-transform: lowercase;
+  text-align: center;
+}
+
+.restart-link {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: rgba(200, 200, 192, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  cursor: pointer;
+  padding: 0.4em 0.8em;
+  transition: color 0.3s ease;
+}
+
+.restart-link:hover,
+.restart-link:focus-visible {
+  color: rgba(200, 200, 192, 0.85);
+  outline: none;
+}
+
+/* ── Fade utility classes ─────────────────────────────────── */
+.fade-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.fade-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Title-return card (end of phases) ───────────────────── */
+#title-return {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  z-index: 35;
+  pointer-events: all;
+}
+
+#title-return.visible {
+  display: flex;
+}
+
+#title-return .return-title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #e8e8e0;
+  opacity: 0.9;
+}
+
+#title-return .return-footer {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  text-transform: lowercase;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* ── Reduced-motion overrides ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

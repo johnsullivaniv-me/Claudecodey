@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Still Here — a contemplative browser experience." />
+  <title>Still Here</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Generative canvas background -->
+    <canvas id="bg" aria-hidden="true"></canvas>
+
+    <!-- Start screen -->
+    <div id="start-screen" role="main" aria-label="Still Here — begin">
+      <h1 class="app-title">Still Here</h1>
+      <p class="subtitle">an experience · about 4 minutes · headphones · sound on</p>
+      <button id="start-btn" type="button">Begin</button>
+      <p class="footer-micro">find a quiet minute first</p>
+    </div>
+
+    <!-- Main text overlay (hidden until experience starts) -->
+    <div id="overlay" aria-live="polite" aria-atomic="true">
+      <div id="line-display" class="fade-hidden">
+        <span id="line-text"></span>
+      </div>
+    </div>
+
+    <!-- Title return card (shown after final phase) -->
+    <div id="title-return" role="region" aria-label="Still Here — complete">
+      <span class="return-title">Still Here</span>
+      <button class="restart-link" id="restart-btn-title" type="button">↺ begin again</button>
+      <p class="return-footer">the present moment is the only one you ever actually get.</p>
+    </div>
+
+    <!-- Esc / exit end card -->
+    <div id="end-card" role="region" aria-label="End">
+      <p class="end-message">You are still here.</p>
+      <button class="restart-link" id="restart-btn-end" type="button">↺ begin again</button>
+      <p class="end-footer">the present moment is the only one you ever actually get.</p>
+    </div>
+
+    <!-- Controls (hidden until experience starts) -->
+    <div id="controls" class="fade-hidden" aria-label="Controls">
+      <button class="ctrl-btn" id="mute-btn" type="button" aria-label="Toggle mute">sound on</button>
+      <button class="ctrl-btn" id="skip-btn" type="button" aria-label="Skip to next phase">skip →</button>
+    </div>
+
+    <!-- ESC hint -->
+    <p id="esc-hint" class="fade-hidden">esc to exit</p>
+
+  </div>
+
+  <script type="module" src="src/experience.js"></script>
+</body>
+</html>
